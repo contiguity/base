@@ -1,0 +1,14 @@
+{
+  "name": "orwell",
+  "version": "1.0.0",
+  "description": "Orwell spies on emails being opened.",
+  "main": "src/index.js",
+  "author": "Contiguity",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "@contiguity/base": "^1.0.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "isomorphic-fetch": "^3.0.0"
+  }
+}

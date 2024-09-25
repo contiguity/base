@@ -1,0 +1,13 @@
+v: 0
+icon: ./icon.png
+micros:
+  - name: orwell
+    src: .
+    engine: nodejs16
+    run: node src/index.js
+    public: true
+    presets:
+      env:
+        - name: "DETA_PK"
+          description: "Deta Project Key"
+          default: ""
