@@ -83,29 +83,42 @@ class Base {
 		try {
 			const response = await fetch(url, options)
 			if (!response.ok) {
+				if (response.status === 404) {
+					return undefined
+				}
 				const errorBody = await response.text()
-				throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`)
+				console.error(`HTTP error! status: ${response.status}, body: ${errorBody}`)
+				return undefined
 			}
 			return response.json()
 		} catch (error) {
 			if (this.db.debug) {
 				console.error(`Request failed: ${error.message}`)
 			}
-			throw error
+			return undefined
 		}
 	}
 
 	/**
-	 * Puts an item in the database
-	 * @param {Object} item - The item to put
-	 * @param {string} [key=null] - The key for the item
+	 * Puts one or more items in the database
+	 * @param {Object|Object[]} items - The item or array of items to put
+	 * @param {string} [key=null] - The key for the item. If provided, it will be applied only if a single item is given.
+	 * For multiple items, keys must be included in each item object.
 	 * @returns {Promise<Object>} The response data
 	 */
-	async put(item, key = null) {
-		const path = `/items`
-		const itemWithKey = key ? { ...item, key } : item
-		return this._fetch("PUT", path, { items: [itemWithKey] })
+	async put(items, key = null) {
+		const path = `/items`;
+		let itemsArray;
+
+		if (Array.isArray(items)) {
+			itemsArray = items.map(item => key ? { ...item, key } : item);
+		} else {
+			itemsArray = [key ? { ...items, key } : items];
+		}
+
+		return this._fetch("PUT", path, { items: itemsArray });
 	}
+
 
 	/**
 	 * Gets an item from the database
