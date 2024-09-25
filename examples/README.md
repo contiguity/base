@@ -66,4 +66,4 @@ const db = contiguity.db("your-api-key", "your-project-id");
 const simpleDB = db.Base("simple_db");
 ```
 
-and, now, you'll say, "but my Base calls!" and "I incremented and queried and stored data!" -- well, guess what, we matched it all. No changes required. Don't believe us? Check out [this old email open tracking API](https://github.com/contiguity/base/edit/main/examples/migrated_app/) we had, that we switched from Deta to Contiguity.
+and, now, you'll say, "but my Base calls!" and "I incremented and queried and stored data!" -- well, guess what, we matched it all. No changes required. Don't believe us? Check out [this old email open tracking API](https://github.com/contiguity/base/tree/main/examples/Migrated%20App%20Demo) we had, that we switched from Deta to Contiguity.
