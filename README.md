@@ -119,18 +119,140 @@ To remove an item, use the `delete` method:
 await myBase.delete("unique-key-1")
 ```
 
-## Querying your base 🕵️‍♀️
 
-You can perform complex queries using the `query` method:
+## Querying (fetching) your base 🕵️‍♀️
+
+You can perform complex queries using the `fetch` method like so:
 
 ```js
-const queryParams = {
-    filter: { is_awesome: true },
-    sort: { coolness_level: "desc" },
-    limit: 10
-}
+const results = await myBase.fetch({ 
+  "is_awesome": true, 
+  "profile.name?contains": "John" 
+});
+```
 
-const results = await myBase.query(queryParams)
+### Query Operators
+
+#### Equal
+
+```json
+{
+  "age": 22, 
+  "name": "Sarah"
+}
+```
+
+- **Hierarchical**  
+```json
+{
+  "user.profile.age": 22, 
+  "user.profile.name": "Sarah"
+}
+```
+
+- **Array**  
+```json
+{
+  "fav_numbers": [2, 4, 8]
+}
+```
+
+- **Nested Object**  
+```json
+{
+  "time": { 
+    "day": "Tuesday", 
+    "hour": "08:00"
+  }
+}
+```
+
+#### Not Equal
+
+```json
+{
+  "user.profile.age?ne": 22
+}
+```
+
+#### Less Than
+
+```json
+{
+  "user.profile.age?lt": 22
+}
+```
+
+#### Greater Than
+
+```json
+{
+  "user.profile.age?gt": 22
+}
+```
+
+#### Less Than or Equal
+
+```json
+{
+  "user.profile.age?lte": 22
+}
+```
+
+#### Greater Than or Equal
+
+```json
+{
+  "user.profile.age?gte": 22
+}
+```
+
+#### Prefix (String starts with)
+
+```json
+{
+  "user.id?pfx": "afdk"
+}
+```
+
+#### Range
+
+```json
+{
+  "user.age?r": [22, 30]
+}
+```
+
+#### Contains
+
+- **String contains a substring**  
+```json
+{
+  "user.email?contains": "@contiguity.co"
+}
+```
+
+- **List contains an item**  
+```json
+{
+  "user.places_lived_list?contains": "Miami"
+}
+```
+
+#### Not Contains
+
+- **String does not contain a substring**  
+```json
+{
+  "user.email?not_contains": "@contiguity.co"
+}
+```
+
+- **List does not contain an item**  
+```json
+{
+  "user.places_lived_list?not_contains": "Miami"
+}
 ```
 
 ## Utility operations 🛠️

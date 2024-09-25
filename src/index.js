@@ -155,18 +155,38 @@ class Base {
 		}
 		return this._fetch("PATCH", `/items/${key}`, { updates: processedUpdates })
 	}
-
 	/**
 	 * Queries the database
-	 * @param {Object} queryParams - The query parameters
-	 * @returns {Promise<Object>} The response data
+	 * @param {Object} query - The query object to filter items
+	 * @param {Object} [options] - Additional options for the query
+	 * @param {number} [options.limit] - The maximum number of items to return
+	 * @param {string} [options.last] - The last evaluated key for pagination
+	 * @returns {Promise<Object>} The response data containing items, last evaluated key, and count
+	 * @returns {Array} response.items - The array of items matching the query
+	 * @returns {string|undefined} response.last - The last evaluated key for pagination, if applicable
+	 * @returns {number} response.count - The total count of items matching the query
 	 */
-	async query(queryParams) {
-		if (this.db.debug) {
-			console.log("Query params sent to server:", JSON.stringify(queryParams, null, 2))
-		}
-		return this._fetch("POST", "/query", queryParams)
-	}
+    async fetch(query, options = {}) {
+        const { limit, last } = options;
+    
+        const queryParams = {
+            query: query || undefined,
+            limit: limit || undefined,
+            last: last || undefined,
+        };
+    
+        if (this.db.debug) {
+            console.log("Fetch params sent to server:", JSON.stringify(queryParams, null, 2));
+        }
+    
+        const response = await this._fetch("POST", `/query`, queryParams);
+        
+        return {
+            items: response.items,
+            last: response.last,
+            count: response.count,
+        };
+    }
 }
 
 /**
