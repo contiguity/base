@@ -1,0 +1,32 @@
+{
+    "name": "@contiguity/base",
+    "version": "1.0.0",
+    "description": "Contiguity's Base JavaScript SDK",
+    "main": "src/index.js",
+    "types": "dist/index.d.ts",
+    "keywords": [
+        "deta",
+        "deta space",
+        "deta shutdown",
+        "deta base",
+        "deta drive",
+        "contiguity base",
+        "base",
+        "contiguity",
+        "nosql"
+    ],
+    "author": "Contiguity",
+    "license": "MIT",
+    "scripts": {
+        "types": "npx -p typescript tsc src/*.js --declaration --allowJs --emitDeclarationOnly --outDir dist"
+    },
+    "dependencies": {
+        "fs": "^0.0.1-security",
+        "isomorphic-unfetch": "^4.0.2"
+    },
+    "devDependencies": {
+        "@types/node": "^22.6.1",
+        "typescript": "^5.6.2"
+    },
+    "repository": "https://github.com/contiguity/base.git"
+}

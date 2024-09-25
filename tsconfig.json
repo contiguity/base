@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "target": "es2018",
+        "module": "commonjs",
+        "lib": ["es2018", "dom"],
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "outDir": "dist",
+        "allowJs": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "types": []
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "**/*.spec.ts"]
+}
