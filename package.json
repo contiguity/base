@@ -21,8 +21,8 @@
         "types": "npx -p typescript tsc src/*.js --declaration --allowJs --emitDeclarationOnly --outDir dist"
     },
     "dependencies": {
-        "fs": "^0.0.1-security",
-        "isomorphic-fetch": "^3.0.0"
+        "cross-fetch": "^4.0.0",
+        "fs": "^0.0.1-security"
     },
     "devDependencies": {
         "@types/node": "^22.6.1",
