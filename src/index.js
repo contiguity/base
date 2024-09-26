@@ -1,4 +1,4 @@
-const fetch = require("isomorphic-unfetch")
+const fetch = require("isomorphic-fetch")
 
 /**
  * Utility class for database operations

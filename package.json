@@ -22,7 +22,7 @@
     },
     "dependencies": {
         "fs": "^0.0.1-security",
-        "isomorphic-unfetch": "4.0.2"
+        "isomorphic-fetch": "^3.0.0"
     },
     "devDependencies": {
         "@types/node": "^22.6.1",
