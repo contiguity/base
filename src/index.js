@@ -114,23 +114,28 @@ class Base {
 		let itemsArray
 
 		if (Array.isArray(items)) {
-			itemsArray = items
+			itemsArray = items.map(item => ({ ...item }))
 		} else {
-			itemsArray = [key ? { ...items, key } : items]
+			itemsArray = [{ ...items, key }]
 		}
 
-		const requestBody = { items: itemsArray }
+		itemsArray.forEach(item => {
+			if (options.expireIn || options.expireAt) {
+				item.__expires = this.calculateExpires(options.expireIn, options.expireAt)
+			}
+		})
 
-		if (options.expireIn) {
-			requestBody.expireIn = options.expireIn
-		}
-		if (options.expireAt) {
-			requestBody.expireAt = options.expireAt instanceof Date ? options.expireAt.toISOString() : options.expireAt
-		}
-
-		return this._fetch("PUT", path, requestBody)
+		return this._fetch("PUT", path, { items: itemsArray })
 	}
 
+	calculateExpires(expireIn, expireAt) {
+		if (expireAt) {
+			return Math.floor(new Date(expireAt).getTime() / 1000)
+		} else if (expireIn) {
+			return Math.floor(Date.now() / 1000) + expireIn
+		}
+		return undefined
+	}
     
 	/**
 	 * Gets an item from the database
@@ -160,25 +165,42 @@ class Base {
 	 * @returns {Promise<Object>} The response data
 	 */
 	async update(updates, key, options = {}) {
-		const processedUpdates = {}
+		const processedUpdates = {
+			set: {},
+			increment: {},
+			append: {},
+			prepend: {},
+			delete: []
+		}
+
 		for (const [field, value] of Object.entries(updates)) {
 			if (value && typeof value === "object" && value.__op) {
-				processedUpdates[field] = value
+				switch (value.__op) {
+					case "increment":
+						processedUpdates.increment[field] = value.value
+						break
+					case "append":
+						processedUpdates.append[field] = value.value
+						break
+					case "prepend":
+						processedUpdates.prepend[field] = value.value
+						break
+					case "delete":
+						processedUpdates.delete.push(field)
+						break
+					default:
+						processedUpdates.set[field] = value.value
+				}
 			} else {
-				processedUpdates[field] = { __op: "set", value }
+				processedUpdates.set[field] = value
 			}
 		}
 
-		const requestBody = { updates: processedUpdates }
+		if (options.expireIn || options.expireAt) {
+			processedUpdates.set.__expires = this.calculateExpires(options.expireIn, options.expireAt)
+		}
 
-		if (options.expireIn) {
-			requestBody.expireIn = options.expireIn
-		}
-		if (options.expireAt) {
-			requestBody.expireAt = options.expireAt instanceof Date
-				? options.expireAt.toISOString()
-				: options.expireAt
-		}
+		const requestBody = { updates: processedUpdates }
 
 		return this._fetch("PATCH", `/items/${key}`, requestBody)
 	}
@@ -215,6 +237,13 @@ class Base {
 			count: response.count,
 		}
 	}
+
+	async putMany(items) {
+		if (!Array.isArray(items) || items.length === 0) {
+			throw new Error("putMany requires an array of items with at least one item");
+		}
+		return this.put(items);
+	}
 }
 
 /**
@@ -224,13 +253,12 @@ class Contiguity {
 	/**
 	 * @param {string} apiKey - The API key
 	 * @param {string} projectId - The project ID
-	 * @param {string} [baseUrl="https://api.base.contiguity.co/v1"] - The base URL for the API
 	 * @param {boolean} [debug=false] - Whether to enable debug logging
 	 */
-	constructor(apiKey, projectId, baseUrl = "https://api.base.contiguity.co/v1", debug = false) {
+	constructor(apiKey, projectId, debug = false) {
 		this.apiKey = apiKey
 		this.projectId = projectId
-		this.baseUrl = baseUrl
+		this.baseUrl = "https://api.base.contiguity.co/v1"
 		this.debug = debug
 	}
 
@@ -249,9 +277,8 @@ module.exports = {
 	 * Creates a new Contiguity instance
 	 * @param {string} apiKey - The API key
 	 * @param {string} projectId - The project ID
-	 * @param {string} [baseUrl] - The base URL for the API
 	 * @param {boolean} [debug=false] - Whether to enable debug logging
 	 * @returns {Contiguity} A new Contiguity instance
 	 */
-	db: (apiKey, projectId, baseUrl, debug = false) => new Contiguity(apiKey, projectId, baseUrl, debug),
+	db: (apiKey, projectId, debug = false) => new Contiguity(apiKey, projectId, debug),
 }
