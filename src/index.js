@@ -128,6 +128,30 @@ class Base {
 		return this._fetch("PUT", path, { items: itemsArray })
 	}
 
+    /**
+	 * Inserts a single item into the database
+	 * @param {Object} item - The item to insert
+	 * @param {string} [key=null] - The key for the item
+	 * @param {Object} [options] - Additional options for the insert operation
+	 * @param {number} [options.expireIn] - The number of seconds after which the item should expire
+	 * @param {Date|string} [options.expireAt] - The specific date and time when the item should expire
+	 * @returns {Promise<Object>} The response data
+	 */
+	async insert(item, key = null, options = {}) {
+		const path = `/items`
+		const itemToInsert = { ...item }
+
+		if (key) {
+			itemToInsert.key = key
+		}
+
+		if (options.expireIn || options.expireAt) {
+			itemToInsert.__expires = this.calculateExpires(options.expireIn, options.expireAt)
+		}
+
+		return this._fetch("POST", path, { item: itemToInsert })
+	}
+
 	calculateExpires(expireIn, expireAt) {
 		if (expireAt) {
 			return Math.floor(new Date(expireAt).getTime() / 1000)
@@ -238,6 +262,12 @@ class Base {
 		}
 	}
 
+	/**
+	 * Puts multiple items into the database
+	 * @param {Object[]} items - An array of items to put into the database
+	 * @throws {Error} If the input is not an array or is an empty array
+	 * @returns {Promise<Object>} The response data from the put operation
+	 */
 	async putMany(items) {
 		if (!Array.isArray(items) || items.length === 0) {
 			throw new Error("putMany requires an array of items with at least one item");
