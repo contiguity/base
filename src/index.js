@@ -103,29 +103,36 @@ class Base {
 	 * Puts one or more items in the database
 	 * @param {Object|Object[]} items - The item or array of items to put
 	 * @param {string} [key=null] - The key for the item. If provided, it will be applied only if a single item is given.
-	 * For multiple items, keys must be included in each item object.
 	 * @param {Object} [options] - Additional options for the put operation
 	 * @param {number} [options.expireIn] - The number of seconds after which the item(s) should expire
 	 * @param {Date|string} [options.expireAt] - The specific date and time when the item(s) should expire
 	 * @returns {Promise<Object>} The response data
 	 */
 	async put(items, key = null, options = {}) {
-		const path = `/items`
-		let itemsArray
+		const path = `/items`;
+		let itemsArray;
 
 		if (Array.isArray(items)) {
-			itemsArray = items.map(item => ({ ...item }))
+			itemsArray = items.slice(); // Shallow copy to avoid mutating original array
 		} else {
-			itemsArray = [{ ...items, key }]
+			itemsArray = [items];
+			if (key) {
+				itemsArray[0] = { ...itemsArray[0], key };
+			}
 		}
 
-		itemsArray.forEach(item => {
-			if (options.expireIn || options.expireAt) {
-				item.__expires = this.calculateExpires(options.expireIn, options.expireAt)
-			}
-		})
+		const expireValue = options.expireIn || options.expireAt
+			? this.calculateExpires(options.expireIn, options.expireAt)
+			: null;
 
-		return this._fetch("PUT", path, { items: itemsArray })
+		itemsArray = itemsArray.map(item => {
+			if (expireValue) {
+				item = { ...item, __expires: expireValue };
+			}
+			return item;
+		});
+
+		return this._fetch("PUT", path, { items: itemsArray });
 	}
 
     /**
